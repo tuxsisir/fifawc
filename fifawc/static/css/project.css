@@ -1,0 +1,72 @@
+/* These styles are generated from project.scss. */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.content {
+  min-height: 100%;
+}
+footer {
+  background: #0f4583 url("/static/images/backdrops/header.png") repeat;
+  height:260px;   /* Height of the footer */
+  margin-top: 120px;
+}
+.match-stadium {
+  background: #0f4583 url("/static/images/std.jpeg") repeat;
+  height:100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: linear-gradient(rgba(0,0,0,0.5));
+}
+.alert-debug {
+  color: black;
+  background-color: white;
+  border-color: #d6e9c6;
+}
+
+.alert-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+
+.font-xxs{font-size:.6rem}
+.font-xs{font-size:.7rem}
+.font-sm{font-size:.8rem}
+.font-md-xxs{font-size:.9rem}
+.font-md{font-size:1.15rem}
+.font-lg{font-size:1.5rem}
+
+@font-face {
+  font-family: fontFifa;
+  src: url("/static/fonts/fifawc.ttf");
+}
+
+.fifa-font{
+  font-family: fontFifa;
+}
+
+.border-1{border:1px solid #dddee0}
+.border-bottom-1{border-bottom:1px solid #dddee0}
+.border-bottom-light-1{border-bottom:1px solid #f3f3f3}
+.border-right-1{border-right:1px solid #dddee0}
+.border-left-1{border-left:1px solid #dddee0}
+.border-top-1{border-top:1px solid #dddee0}
+.border-top-2{border-top:2px solid}
+.border-radius-3{border-radius:3px}
+.border-left-light-1{border-left:1px solid #efefef}
+.border-right-light-1{border-right:1px solid #efefef}
+.table-no-border tr td{border:0!important;padding:4px 8px}
+
+.text-white{color: #FFFFFF; !important;}
+
+.default-min-height{
+  min-height: 500px;
+}
+
+.img-circle-custom{
+  border-radius: 50%;
+}

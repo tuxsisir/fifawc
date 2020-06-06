@@ -1,0 +1,214 @@
+{% extends "__base.html" %}
+{% load match_tags %}
+{% block css %}
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+{% endblock %}
+{% block content %}
+  <div class="container default-min-height py-5">
+    <h5 class="">Prediction History of {{ user.name|default:"A man has no name" }} - <i>{{user.total_points.points_scored__sum}} (Total Points)</i></h5>
+    <hr>
+    <div class="row mt-2">
+      {% for prediction in object_list %}
+        <div class="col-md-12">
+          <div class="card mb-3">
+            <div class="card-header">
+              {{ prediction.match }} <span
+              class="text-muted font-sm">({{ prediction.match.get_match_type_display }})</span>
+              <span class="float-right">Points Scored: {% get_match_point_of_user prediction.match user as score_obj %} {{ score_obj.points_scored }}/ {{ prediction.match.possible_points }}</span>
+                <span class="float-right mx-2">|</span>
+              <a class="float-right" href="{% url 'match:match-detail' prediction.match.id %}">View Match Details</a>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Predicted Score</h6>
+                  <table class="table table-hover table-striped table-no-border table-responsive">
+                    <tr>
+                      <td width="40%">Winning Team<span class="float-right">:</span></td>
+                      <td>{{ prediction.winning_team }}</td>
+                    <td class="font-sm">
+                      {% if prediction.winning_team == prediction.match.outcome.winning_team %}
+                        <i class="fa fa-check-circle text-success"></i>
+                      {% else %}
+                        <i class="fa fa-times-circle text-danger"></i>
+                      {% endif %}
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>Score<span class="float-right">:</span></td>
+                      <td>
+                        ({{ prediction.match.home }} <strong>{{ prediction.home_goal }}</strong> -
+                        <strong>{{ prediction.away_goal }}</strong> {{ prediction.match.away }})
+                      </td>
+                      <td class="font-sm">
+                        {% if prediction.home_goal == prediction.match.outcome.home_goal %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                        {% if prediction.away_goal == prediction.match.outcome.away_goal %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Red Card<span class="float-right">:</span></td>
+                      <td>
+                        {% if prediction.red_card %}
+                          <span class="badge badge-danger" title="Predicted Red Card for the Match">*</span>
+                        {% else %}
+                          <span class="mr-2">N/A</span>
+                        {% endif %}
+                      </td>
+                      <td class="font-sm">
+                        {% if prediction.red_card == prediction.match.outcome.red_card %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Yellow Card<span class="float-right">:</span></td>
+                      <td>
+                        {% if prediction.yellow_card %}
+                          <span class="badge badge-warning" title="Predicted Yellow Card for the Match">*</span>
+                        {% else %}
+                          N/A
+                        {% endif %}
+                      </td>
+                      <td class="font-sm">
+                        {% if prediction.yellow_card == prediction.match.outcome.yellow_card %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Penalty Goal<span class="float-right">:</span></td>
+                      <td>
+                        {% if prediction.penalty_goal %}
+                          <span class="badge badge-info" title="Predicted Penalty Goal for the Match">*</span>
+                        {% else %}
+                          N/A
+                        {% endif %}
+                      </td>
+                      <td class="font-sm">
+                        {% if prediction.penalty_goal == prediction.match.outcome.penalty_goal %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Most Fouls Committed<span class="float-right">:</span></td>
+                      <td>
+                        <span>{{ prediction.most_foul }}</span>
+                      </td>
+                      <td class="font-sm">
+                        {% if prediction.most_foul == prediction.match.outcome.most_foul %}
+                          <i class="fa fa-check-circle text-success"></i>
+                        {% else %}
+                          <i class="fa fa-times-circle text-danger"></i>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Bonus Q/A <span class="float-right">:</span></td>
+                      <td class="font-sm"><span class="d-block">Q. {{ prediction.match.bonus_question }}</span>
+                        <span class="d-block">&raquo; {{ prediction.bonus_answer }}</span></td>
+                      <td class="font-sm" width="10%">
+                        {% if score_obj.nearest %}
+                          <h5><i class="fa fa-check-circle text-warning" title="Nearest Answer Win"></i></h5>
+                        {% endif %}
+                        {% if prediction.bonus_answer == prediction.match.outcome.bonus_answer or score_obj.matching %}
+                          <h5><i class="fa fa-check-circle text-success" title="Congratulations! Exact Match!"></i></h5>
+                        {% endif %}
+                        {% if not score_obj.matching and not score_obj.nearest and prediction.bonus_answer != prediction.match.outcome.bonus_answer %}
+                          <h5><i class="fa fa-times-circle text-danger" title="You didn't score anything!"></i></h5>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="col-md-6">
+                  <h6>Match Outcome</h6>
+                  {% if prediction.match.outcome %}
+                    <table class="table table-hover table-striped table-no-border table-responsive">
+                      <tr>
+                        <td width="40%">Winning Team<span class="float-right">:</span></td>
+                        <td>{{ prediction.match.outcome.winning_team }}</td>
+                      </tr>
+                      <tr>
+                        <td>Score<span class="float-right">:</span></td>
+                        <td>
+                          ({{ prediction.match.home }} <strong>{{ prediction.match.outcome.home_goal }}</strong> -
+                          <strong>{{ prediction.match.outcome.away_goal }}</strong> {{ prediction.match.away }})
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Red Card<span class="float-right">:</span></td>
+                        <td>
+                          {% if prediction.match.outcome.red_card %}
+                            <span class="badge badge-danger" title="Red Card for the Match">*</span>
+                          {% else %}
+                            <span class="mr-2">N/A</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Yellow Card<span class="float-right">:</span></td>
+                        <td>
+                          {% if prediction.match.outcome.yellow_card %}
+                            <span class="badge badge-warning" title="Yellow Card for the Match">*</span>
+                          {% else %}
+                            N/A
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Penalty Goal<span class="float-right">:</span></td>
+                        <td>
+                          {% if prediction.match.outcome.penalty_goal %}
+                            <span class="badge badge-info" title="Penalty Goal for the Match">*</span>
+                          {% else %}
+                            N/A
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Most Fouls Committed<span class="float-right">:</span></td>
+                        <td>
+                            <span>{{ prediction.match.outcome.most_foul }}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Bonus Q/A <span class="float-right">:</span></td>
+                        <td class="font-sm"><span class="d-block">Q. {{ prediction.match.bonus_question }}</span>
+                          <span class="d-block">&raquo; {{ prediction.match.outcome.bonus_answer }}</span></td>
+                      </tr>
+                    </table>
+                  {% else %}
+                    <div class="font-sm text-center py-5 text-muted">
+                      <div class="py-5">Match Outcome yet to be published!</div>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-md-12">
+        <div class="alert alert-info text-center">
+          A man has no history of predictions.
+        </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

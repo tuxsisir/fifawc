@@ -1,0 +1,219 @@
+{% extends "__base.html" %}
+{% load crispy_forms_tags match_tags %}
+{% block css %}
+ <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<style rel="stylesheet">
+  .user-img{
+    height: 100px;
+    object-fit: cover;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="card my-3">
+    <div class="card-header">
+      <span title="Match Type">{{ object.get_match_type_display }}</span>
+    </div>
+    <div class="card-body match-stadium py-5">
+      <div class="row">
+        <div class="col-md-5 text-center">
+          <img src="{{ object.home.flag_image.url }}" width="100">
+          {% if object.outcome %}
+          <h1 class="text-white float-right">{{ object.outcome.home_goal }}</h1>
+          {% endif %}
+          <h6 class="text-white my-4">{{ object.home }}</h6>
+          <span class="text-white font-sm text-muted">(Home)</span>
+        </div>
+        <div class="col-md-2 text-center">
+          <h1 class="text-white fifa-font">VS</h1>
+          <br>
+          <span class="font-sm text-white">{{ object.start_time|date:"d N - l" }}<br>{{ object.start_time|time:"f a" }}</span>
+          <br>
+          {% if request.user.is_superuser %}
+          <a href="{% url 'match:match-update' object.id %}" class="text-white">Update</a>
+          {% endif %}
+        </div>
+        <div class="col-md-5 text-center">
+          <img src="{{ object.away.flag_image.url }}" width="100">
+          {% if object.outcome %}
+            <h1 class="text-white float-left">{{ object.outcome.away_goal }}</h1>
+          {% endif %}
+          <h6 class="text-white my-4">{{ object.away }}</h6>
+          <span class="text-white font-sm text-muted">(Away)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            Your Colleagues' Predictions!
+            <span class="float-right">Predictions Submitted: <strong>{{ match_predictions.count }}</strong></span>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for prediction in match_predictions %}
+              <li class="list-group-item">
+              <div class="row">
+                <div class="col-md-2">
+                  <div style="min-height: 100px;">
+                  <img src="{{ prediction.user.get_profile_picture }}" class="img-circle-custom mr-2 user-img" width="100">
+                   {% if object.outcome %}
+                    <div class="text-center ml-3 font-xs mt-2" title="Total Points Scored">
+                      <a target="_blank" href="{% url 'prediction:history' prediction.user.id %}">{% get_match_point_of_user object prediction.user as score_obj %} Score: {{ score_obj.points_scored }}</a>
+                    </div>
+                    {% if score_obj.nearest or score_obj.matching %}
+                    <div class="text-center ml-3">
+                      {% if score_obj.nearest %}<i class="fa fa-star fa-fw text-warning"></i>{% endif %}
+                      {% if score_obj.matching %}<i class="fa fa-star fa-fw text-success"></i>{% endif %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-10" title="Created: {{ prediction.created }} - Last Modified: {{ prediction.modified }}">
+                  {{ prediction }} <span class="font-sm d-block">
+                  ({{ object.home }} <strong>{{ prediction.home_goal }}</strong> - <strong>{{ prediction.away_goal }}</strong> {{ object.away }})</span>
+                <span class="d-block font-sm">Team with Most Foul Commits: <strong>{{ prediction.most_foul }}</strong></span>
+
+                <span class="d-block font-sm">Q. {{ prediction.match.bonus_question }}
+                  <br>&raquo; {{ prediction.bonus_answer }}</span>
+
+                  {% if prediction.red_card %}
+                    <span class="badge badge-danger" title="Predicted Red Card for the Match">*</span>
+                  {% endif %}
+                  {% if prediction.yellow_card %}
+                    <span class="badge badge-warning" title="Predicted Yellow Card for the Match">*</span>
+                  {% endif %}
+                  {% if prediction.penalty_goal %}
+                    <span class="badge badge-info" title="Predicted Penalty Goal for the Match">*</span>
+                  {% endif %}
+                </div>
+              </div>
+              </li>
+                {% empty %}
+                <div class="alert alert-info">
+                No data found on predictions.
+                </div>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            Your Prediction
+          </div>
+          <div class="card-body">
+            {% if prediction_deadline_exceeded %}
+              {% if form.initial %}
+                You have submitted your prediction. Prediction submission over!
+                {% else %}
+                Prediction submission deadline exceeded. You didn't submit your prediction and now you, my friend, are in a serious problem.
+              {% endif %}
+            {% else %}
+            {% if form.initial %}
+              <!--<div class="text-muted font-xs mb-2">-->
+              <!--*You've already submitted your prediction, however you can resubmit your prediction anytime before the start time of the match.-->
+              <!--</div>-->
+            {% endif %}
+            <form method="POST"
+                  action="{% if form.initial %}{% else %}{% url 'prediction:create' %}{% endif %}">
+              {% csrf_token %}
+              {{ form.winning_team|as_crispy_field }}
+              <strong>{{ object.home }}</strong>
+              {{ form.home_goal|as_crispy_field }}
+              <strong>{{ object.away }}</strong>
+              {{ form.away_goal|as_crispy_field }}
+              {{ form.red_card|as_crispy_field }}
+              {{ form.yellow_card|as_crispy_field }}
+              {{ form.penalty_goal|as_crispy_field }}
+              {{ form.most_foul|as_crispy_field }}
+              <strong>{{ object.bonus_question }} </strong>
+              {{ form.bonus_answer|as_crispy_field }}
+              <input type="hidden" value="{{ object.id }}" name="match">
+              {% if form.initial %}
+              You can only see and play around with your prediction now. You cannot update it!<br>
+              That's what the rules are going to be now!
+              <br><br>
+              If you are trying to search for the url, better not to try because the url has been commented out!
+              {% else %}
+              <button type="submit" class="btn btn-primary">Submit</button>
+              {% endif %}
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      {% if object.outcome %}
+      <div class="card my-3">
+        <div class="card-header">
+          Match Outcome
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-5 text-center">
+              <h1>{{ object.outcome.home_goal }}</h1>
+              {{ object.home|truncatechars:"20" }}
+            </div>
+            <div class="col-md-2 text-center"> - </div>
+            <div class="col-md-5 text-center">
+              <h1>{{ object.outcome.away_goal }}</h1>
+              {{ object.away|truncatechars:"20" }}
+            </div>
+          </div>
+          <table class="table table-responsive table-no-border table-hover table-striped mt-4">
+            <tr>
+              <td>Red Card<span class="float-right">:</span></td>
+              <td>
+                {% if object.outcome.red_card %}
+                  <span class="badge badge-danger" title="">*</span>
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>Yellow Card<span class="float-right">:</span></td>
+              <td>
+                {% if object.outcome.yellow_card %}
+                  <span class="badge badge-warning" title="">*</span>
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>Penalty Goal<span class="float-right">:</span></td>
+              <td>
+                {% if object.outcome.penalty_goal %}
+                  <span class="badge badge-info" title="">*</span>
+                  {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>Most Foul<span class="float-right">:</span></td>
+              <td>
+                  {{ object.outcome.most_foul }}
+              </td>
+            </tr>
+          </table>
+          <h6>Bonus Q/A</h6>
+          <hr>
+          <div>
+            <div>Q. {{ object.bonus_question }}</div>
+            <span class="d-block">&raquo; <em>{{ object.outcome.bonus_answer }}</em></span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

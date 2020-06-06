@@ -1,0 +1,38 @@
+{% extends "__base.html" %}
+
+{% block css %}
+  <style rel="stylesheet">
+  .leader-board-user-img{
+      height: 200px;
+      object-fit: cover;
+  }
+  </style>
+{% endblock %}
+{% block content %}
+  <div class="container default-min-height py-5">
+    <div class="row">
+      {% for user in object_list %}
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <a href="{% url 'prediction:history' user.id %}">{{ user.name|default:"A man has no name" }}</a>
+              {% if forloop.counter == 1 %}
+              <span class="font-xs float-right font-weight-bold badge badge-success">1<sup>st</sup></span>
+              {% elif forloop.counter == 2 %}
+                <span class="font-xs float-right font-weight-bold badge badge-danger">2<sup>nd</sup></span>
+              {% elif forloop.counter == 3 %}
+                <span class="font-xs float-right font-weight-bold badge badge-warning">3<sup>rd</sup></span>
+              {% endif %}
+            </div>
+            <div class="card-body text-center" style="min-height: 200px;">
+              <img src="{{ user.get_profile_picture }}" width="100%" class="leader-board-user-img border-1 p-1">
+            </div>
+            <div class="card-footer">
+              Points Scored: <strong class="float-right">{{ user.total_points.points_scored__sum }}</strong>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

@@ -1,0 +1,28 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Sign Out" %}{% endblock %}
+
+{% block inner %}
+  <div class="row py-3 default-min-height">
+    <div class="col-md-12 text-center py-5">
+      <h1>You are signing off...</h1>
+      <p>Are you sure you did all the pending predictions?</p>
+
+      <form method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+        {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+        <button class="btn btn-danger" type="submit">Yes, Let's get back to work!</button>
+      </form>
+    </div>
+  </div>
+
+
+
+
+
+{% endblock %}
+

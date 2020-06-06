@@ -1,0 +1,53 @@
+{% extends "__base.html" %}
+{% load match_tags %}
+{% block content %}
+  <div class="container default-min-height">
+    {% for object in object_list %}
+      <div class="card my-3">
+        <div class="card-header">
+        {% if request.user.is_superuser %}
+          <span title="Match Type">{{ object.get_match_type_display }}</span>
+          <span class="text-muted font-sm">{{ object.outcome|default:"" }}</span>
+            {% if object.outcome %}
+              <a href="{% url 'prediction:match-outcome-update' object.outcome.id %}" class="float-right">Update Match Outcome</a>
+            {% else %}
+              <a href="{% url 'prediction:match-outcome-create' object.id %}" class="float-right">Match Outcome</a>
+            {% endif %}
+        <span class="float-right mr-2">|</span>
+        {% endif %}
+          <a href="{% url 'match:match-detail' object.id %}" class="float-right mr-2">Overview</a>
+        </div>
+        <div class="card-body header-bg">
+          <div class="row">
+            <div class="col-md-5 text-center">
+              <img src="{{ object.home.flag_image.url }}" width="100">
+              {% if object.outcome %}
+                <h1 class="text-white float-right">{{ object.outcome.home_goal }}</h1>
+              {% endif %}
+              <h6 class="text-white mt-5">{{ object.home }}</h6>
+              <span class="text-white font-sm text-muted">(Home)</span>
+            </div>
+            <div class="col-md-2 text-center">
+              <h1 class="text-white fifa-font">VS</h1>
+              <br>
+              <span class="text-muted font-sm">
+                {{ object.start_time|date:"d N - l" }}<br>{{ object.start_time|time:"f a" }}
+              </span>
+              {% if request.user.is_superuser %}
+              <a href="{% url 'match:match-update' object.id %}" class="text-white mt-4 d-block text-muted">Update Match</a>
+              {% endif %}
+            </div>
+            <div class="col-md-5 text-center">
+              {% if object.outcome %}
+                <h1 class="text-white float-left">{{ object.outcome.away_goal }}</h1>
+              {% endif %}
+              <img src="{{ object.away.flag_image.url }}" width="100">
+              <h6 class="text-white mt-5">{{ object.away }}</h6>
+              <span class="text-white font-sm text-muted">(Away)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock content %}

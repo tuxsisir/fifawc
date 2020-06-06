@@ -1,0 +1,25 @@
+{% extends "__base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block content %}
+  <div class="container default-min-height">
+  <div class="card my-4">
+    <div class="card-header">
+      Update Your Personal Information
+    </div>
+    <div class="card-body">
+      <form class="form-horizontal" method="post" action="{% url 'users:update' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="control-group">
+          <div class="controls">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+{% endblock %}

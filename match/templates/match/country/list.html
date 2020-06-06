@@ -1,0 +1,32 @@
+{% extends "__base.html" %}
+{% load staticfiles match_tags %}
+{% block content %}
+  <div class="container default-min-height">
+    {% regroup object_list by group as country_list %}
+    {% for countries in country_list %}
+      <div class="card my-4">
+      <div class="card-header">
+        <h5>{% get_group_name countries.grouper %}</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-responsive table-bordered table-striped table-hover mt-2">
+          <thead>
+          <tr>
+            <th>Country Name</th>
+            <th class="text-center">Flag</th>
+            <th class="text-center">Win Predicted</th>
+          </tr>
+          </thead>
+          {% for country in countries.list %}
+            <tr>
+              <td width="20%">{{ country.name }}</td>
+              <td class="text-center"><img src="/media/{{ country.flag_image }}" width="100"></td>
+              <td width="20%" class="text-center">{% win_predicted_count country.name %}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock content %}
