@@ -4,7 +4,7 @@ from .base import *  # noqa
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = False
+DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # SECRET_KEY = env('DJANGO_SECRET_KEY', default='rAc3iko9Fr432Dija3vMj3JUwtp4nygMcD0BArXnNdLX56O7PidobxNA565PDz4x')
 # SECRET_KEY = "Y^|T3;Va9_=H8vS-;27~:~79*YE+%9.y"
